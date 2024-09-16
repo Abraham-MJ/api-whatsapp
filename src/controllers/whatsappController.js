@@ -74,7 +74,9 @@ exports.converterImage = async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
     const imageBuffer = await page.screenshot({
@@ -138,7 +140,7 @@ exports.uploadImagesAWS = async (req, res) => {
       return res.status(400).json({ error: "No se ha subido ninguna imagen" });
     }
 
-    const fileName = `image-${Date.now()}.png`; 
+    const fileName = `image-${Date.now()}.png`;
 
     const params = {
       Bucket: process.env.AWS_BUCKET,
