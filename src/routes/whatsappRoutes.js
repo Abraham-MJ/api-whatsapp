@@ -16,5 +16,10 @@ router.post(
   upload.single("file"),
   whatsappController.converterHTMLToJS
 );
+router.post(
+  "/upload-image",
+  upload.single("file"),
+  whatsappController.uploadImagesAWS
+);
 
 module.exports = router;

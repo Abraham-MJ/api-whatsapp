@@ -11,7 +11,6 @@ const s3 = new S3({
   },
 });
 
-
 exports.getQRCode = async (req, res) => {
   const { deviceId } = req.params;
   const userID = deviceId || whatsappService.generateUniqueDeviceID();
@@ -73,7 +72,7 @@ exports.converterImage = async (req, res) => {
   if (!htmlContent) {
     return res.status(400).json({ error: "Se requiere contenido HTML" });
   }
-  
+
   try {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -130,5 +129,33 @@ exports.converterHTMLToJS = async (req, res) => {
     res
       .status(500)
       .json({ error: "Error al procesar el archivo", details: error.message });
+  }
+};
+
+exports.uploadImagesAWS = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No se ha subido ninguna imagen" });
+    }
+
+    const fileName = `image-${Date.now()}.png`; 
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileName,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: "public-read",
+    };
+
+    await s3.putObject(params);
+
+    const imageUrl = `https://${process.env.AWS_BUCKET}.s3.amazonaws.com/${fileName}`;
+    res.json({ image: imageUrl });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al subir la imagen a AWS",
+      details: error.message,
+    });
   }
 };
