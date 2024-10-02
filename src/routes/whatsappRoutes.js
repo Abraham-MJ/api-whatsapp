@@ -21,5 +21,11 @@ router.post(
   upload.single("file"),
   whatsappController.uploadImagesAWS
 );
+router.post(
+  "/edit-image-brand",
+  upload.single("file"),
+  whatsappController.editImagesBrand
+);
+
 
 module.exports = router;
